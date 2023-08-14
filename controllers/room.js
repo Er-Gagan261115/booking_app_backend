@@ -22,7 +22,7 @@ try{
 export const updateRoom= async (req,res,next)=>{
     try {
         const updatedRoom = await Room.findByIdAndUpdate(
-            req.params.id,
+            req.params.id, 
             {$set: req.body},
             {new: true}
             );
@@ -32,9 +32,17 @@ export const updateRoom= async (req,res,next)=>{
     }
 }
 export const deleteRoom= async (req,res,next)=>{
+    const hotelId = req.params.hotelid;
     try {
-        const deletedRoom = await Room.findByIdAndDelete(req.params.id);
-        res.status(200).json(deletedRoom)
+         await Room.findByIdAndDelete(req.params.id);
+        try{
+            await Hotel.findByIdAndUpdate(hotelId,{
+               $pull:{ rooms:req.params.id}
+            })
+            }catch(err){
+               next(err)
+            }
+        res.status(200).json("Room is deleted")
     } catch (err) {
         next(err)
     } 
